@@ -30,9 +30,17 @@ namespace MinimalLibrary.Api.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Book>> GetAllAsync()
+        public async Task<IEnumerable<Book>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            using var connection = await _connectionFactory.CreateConnectionAsync();
+            var result = await connection.QueryAsync<Book>(
+                @"
+                SELECT Isbn, Title, Author, ShortDescription, PageCount, ReleaseDate
+                FROM Books
+                ORDER BY Title;
+                ");
+
+            return result;
         }
 
         public Task<Book?> GetByIsbnAsync(string isbn)
