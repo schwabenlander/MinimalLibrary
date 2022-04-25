@@ -3,10 +3,16 @@ using MinimalLibrary.Api.Models;
 using MinimalLibrary.Api.Services;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Json;
 using MinimalLibrary.Api.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.SerializerOptions.PropertyNameCaseInsensitive = true;
+    options.SerializerOptions.IncludeFields = true;
+});
 
 builder.Configuration.AddJsonFile("appsettings.Local.json", true, true);
 
