@@ -50,10 +50,23 @@ app.MapPost("books", async (Book book, IBookService bookService, IValidator<Book
     return Results.Created($"/books/{book.Isbn}", book);
 });
 
-app.MapGet("books", async (IBookService bookService) =>
+app.MapGet("books", async (IBookService bookService, string? searchTerm) =>
 {
-    var books = await bookService.GetAllAsync();
+    IEnumerable<Book> books = Enumerable.Empty<Book>();
+
+    if (searchTerm is not null && !string.IsNullOrWhiteSpace(searchTerm))
+        books = await bookService.SearchByTitleAsync(searchTerm);
+    else
+        books = await bookService.GetAllAsync();
+
     return Results.Ok(books);
+});
+
+app.MapGet("books/{isbn}", async (string isbn, IBookService bookService) => 
+{
+    var book = await bookService.GetByIsbnAsync(isbn);
+
+    return book is not null ? Results.Ok(book) : Results.NotFound();
 });
 
 // Initialize database

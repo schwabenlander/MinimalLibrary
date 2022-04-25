@@ -13,18 +13,28 @@ public class BookValidator : AbstractValidator<Book>
             .WithMessage("Value was not a valid ISBN-13");
 
         // Title
-        RuleFor(book => book.Title).NotEmpty().WithMessage("Title cannot be empty");
+        RuleFor(book => book.Title)
+            .NotEmpty()
+            .WithMessage("Title cannot be empty");
 
         // Author
-        RuleFor(book => book.Author).NotEmpty().WithMessage("Author cannot be empty");
+        RuleFor(book => book.Author)
+            .NotEmpty()
+            .WithMessage("Author cannot be empty");
 
         // ShortDescription
-        RuleFor(book => book.ShortDescription).NotEmpty().WithMessage("Short Description cannot be empty");
+        RuleFor(book => book.ShortDescription)
+            .NotEmpty()
+            .WithMessage("Short Description cannot be empty");
 
         // PageCount
-        RuleFor(book => book.PageCount).GreaterThan(0).WithMessage("Invalid PageCount value");
+        RuleFor(book => book.PageCount)
+            .GreaterThan(0)
+            .WithMessage("Invalid PageCount value");
 
         // ReleaseDate
-        RuleFor(book => book.Title).NotNull().WithMessage("ReleaseDate must be specified");
+        RuleFor(book => book.Title)
+            .NotNull()
+            .WithMessage("ReleaseDate must be specified");
     }
 }

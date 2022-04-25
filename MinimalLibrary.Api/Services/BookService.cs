@@ -43,14 +43,31 @@ namespace MinimalLibrary.Api.Services
             return result;
         }
 
-        public Task<Book?> GetByIsbnAsync(string isbn)
+        public async Task<Book?> GetByIsbnAsync(string isbn)
         {
-            throw new NotImplementedException();
+            using var connection = await _connectionFactory.CreateConnectionAsync();
+            var result = await connection.QuerySingleOrDefaultAsync<Book>(
+                @"
+                SELECT Isbn, Title, Author, ShortDescription, PageCount, ReleaseDate
+                FROM Books
+                WHERE Isbn = @Isbn
+                LIMIT 1;
+                ", new { Isbn = isbn });
+
+            return result;
         }
 
-        public Task<IEnumerable<Book>> SearchByTitleAsync(string searchTerm)
+        public async Task<IEnumerable<Book>> SearchByTitleAsync(string searchTerm)
         {
-            throw new NotImplementedException();
+            using var connection = await _connectionFactory.CreateConnectionAsync();
+            var result = await connection.QueryAsync<Book>(
+                @"
+                SELECT Isbn, Title, Author, ShortDescription, PageCount, ReleaseDate
+                FROM Books
+                WHERE Title LIKE '%' || @SearchTerm || '%';
+                ", new { SearchTerm = searchTerm });
+
+            return result;
         }
 
         public Task<bool> UpdateAsync(Book book)
