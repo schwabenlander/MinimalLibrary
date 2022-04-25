@@ -57,8 +57,8 @@ app.MapPost("books",
                 new("Isbn", "A book with this ISBN already exists.") 
             });
 
-    return Results.Created($"/books/{book.Isbn}", book);
-});
+    return Results.CreatedAtRoute("GetBook", new { isbn = book.Isbn }, book);
+}).WithName("CreateBook");
 
 // Get books
 app.MapGet("books", async (IBookService bookService, string? searchTerm) =>
@@ -71,7 +71,7 @@ app.MapGet("books", async (IBookService bookService, string? searchTerm) =>
         books = await bookService.GetAllAsync();
 
     return Results.Ok(books);
-});
+}).WithName("GetBooks");
 
 // Get a book by ISBN
 app.MapGet("books/{isbn}", async (string isbn, IBookService bookService) => 
@@ -79,7 +79,7 @@ app.MapGet("books/{isbn}", async (string isbn, IBookService bookService) =>
     var book = await bookService.GetByIsbnAsync(isbn);
 
     return book is not null ? Results.Ok(book) : Results.NotFound();
-});
+}).WithName("GetBook");
 
 // Update a book
 app.MapPut("books/{isbn}", async (string isbn, Book book, IBookService bookService, IValidator<Book> validator) =>
@@ -93,7 +93,7 @@ app.MapPut("books/{isbn}", async (string isbn, Book book, IBookService bookServi
     var updated = await bookService.UpdateAsync(book);
 
     return updated ? Results.Ok(book) : Results.NotFound();
-});
+}).WithName("UpdateBook");
 
 // Delete a book
 app.MapDelete("books/{isbn}", async (string isbn, IBookService bookService) => 
@@ -101,7 +101,7 @@ app.MapDelete("books/{isbn}", async (string isbn, IBookService bookService) =>
     var deleted = await bookService.DeleteAsync(isbn);
 
     return deleted ? Results.NoContent() : Results.NotFound();
-});
+}).WithName("DeleteBook");
 
 // Initialize database
 var databaseInitializer = app.Services.GetRequiredService<DatabaseInitializer>();
