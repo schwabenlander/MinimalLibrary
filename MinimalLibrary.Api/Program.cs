@@ -3,10 +3,18 @@ using MinimalLibrary.Api.Models;
 using MinimalLibrary.Api.Services;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
+using MinimalLibrary.Api.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.Local.json", true, true);
+
 // Add services to the container.
+builder.Services.AddAuthentication(ApiKeySchemeConstants.SchemeName)
+    .AddScheme<ApiKeyAuthSchemeOptions, ApiKeyAuthHandler>(ApiKeySchemeConstants.SchemeName, _ => { });
+builder.Services.AddAuthorization();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>(_ => 
@@ -25,13 +33,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthorization();
 
 // Map redirect to Swagger
 if (app.Environment.IsDevelopment())
     app.MapGet("/", () => Results.Redirect("swagger"));
 
 // Add a book
-app.MapPost("books", async (Book book, IBookService bookService, IValidator<Book> validator) => 
+app.MapPost("books", 
+    //[Authorize(AuthenticationSchemes = ApiKeySchemeConstants.SchemeName)] 
+    async (Book book, IBookService bookService, IValidator<Book> validator) => 
 {
     var validationResult = await validator.ValidateAsync(book);
     if (!validationResult.IsValid)
