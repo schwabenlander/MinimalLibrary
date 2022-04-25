@@ -5,6 +5,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.Json;
 using MinimalLibrary.Api.Auth;
+using MinimalLibrary.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -130,6 +131,19 @@ app.MapDelete("books/{isbn}", async (string isbn, IBookService bookService) =>
 .Produces(204)
 .Produces(404)
 .WithTags("Books");
+
+app.MapGet("status", () => Results.Extensions.Html(@"
+            <html>
+                <head>
+                    <title>Status Page</title>
+                </head>
+                <body>
+                    <h1>Status</h1>
+                    <p>The server is configured correctly and functional.</p>
+                </body>
+            </html>
+        "))
+    .ExcludeFromDescription();
 
 // Initialize database
 var databaseInitializer = app.Services.GetRequiredService<DatabaseInitializer>();
