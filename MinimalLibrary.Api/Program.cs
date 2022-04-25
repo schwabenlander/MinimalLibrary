@@ -37,7 +37,8 @@ app.UseAuthorization();
 
 // Map redirect to Swagger
 if (app.Environment.IsDevelopment())
-    app.MapGet("/", () => Results.Redirect("swagger"));
+    app.MapGet("/", () => Results.Redirect("swagger"))
+        .ExcludeFromDescription();
 
 // Add a book
 app.MapPost("books", 
@@ -58,7 +59,12 @@ app.MapPost("books",
             });
 
     return Results.CreatedAtRoute("GetBook", new { isbn = book.Isbn }, book);
-}).WithName("CreateBook");
+})
+.WithName("CreateBook")
+.Accepts<Book>("application/json")
+.Produces<Book>(201)
+.Produces<IEnumerable<ValidationFailure>>(400)
+.WithTags("Books");
 
 // Get books
 app.MapGet("books", async (IBookService bookService, string? searchTerm) =>
@@ -71,7 +77,10 @@ app.MapGet("books", async (IBookService bookService, string? searchTerm) =>
         books = await bookService.GetAllAsync();
 
     return Results.Ok(books);
-}).WithName("GetBooks");
+})
+.WithName("GetBooks")
+.Produces<IEnumerable<Book>>()
+.WithTags("Books");
 
 // Get a book by ISBN
 app.MapGet("books/{isbn}", async (string isbn, IBookService bookService) => 
@@ -79,7 +88,11 @@ app.MapGet("books/{isbn}", async (string isbn, IBookService bookService) =>
     var book = await bookService.GetByIsbnAsync(isbn);
 
     return book is not null ? Results.Ok(book) : Results.NotFound();
-}).WithName("GetBook");
+})
+.WithName("GetBook")
+.Produces<Book>()
+.Produces(404)
+.WithTags("Books");
 
 // Update a book
 app.MapPut("books/{isbn}", async (string isbn, Book book, IBookService bookService, IValidator<Book> validator) =>
@@ -93,7 +106,12 @@ app.MapPut("books/{isbn}", async (string isbn, Book book, IBookService bookServi
     var updated = await bookService.UpdateAsync(book);
 
     return updated ? Results.Ok(book) : Results.NotFound();
-}).WithName("UpdateBook");
+})
+.WithName("UpdateBook")
+.Accepts<Book>("application/json")
+.Produces<Book>()
+.Produces<IEnumerable<ValidationFailure>>(400)
+.WithTags("Books");
 
 // Delete a book
 app.MapDelete("books/{isbn}", async (string isbn, IBookService bookService) => 
@@ -101,7 +119,11 @@ app.MapDelete("books/{isbn}", async (string isbn, IBookService bookService) =>
     var deleted = await bookService.DeleteAsync(isbn);
 
     return deleted ? Results.NoContent() : Results.NotFound();
-}).WithName("DeleteBook");
+})
+.WithName("DeleteBook")
+.Produces(204)
+.Produces(404)
+.WithTags("Books");
 
 // Initialize database
 var databaseInitializer = app.Services.GetRequiredService<DatabaseInitializer>();
