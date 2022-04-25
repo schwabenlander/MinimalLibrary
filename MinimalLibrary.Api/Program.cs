@@ -6,6 +6,8 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.Json;
 using MinimalLibrary.Api.Auth;
 using MinimalLibrary.Api.Extensions;
+using MinimalLibrary.Api.Validators;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +22,7 @@ builder.Services.AddCors(options =>
 builder.Services.Configure<JsonOptions>(options =>
 {
     options.SerializerOptions.PropertyNameCaseInsensitive = true;
-    options.SerializerOptions.IncludeFields = true;
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 });
 
 builder.Services.AddAuthentication(ApiKeySchemeConstants.SchemeName)
@@ -33,7 +35,7 @@ builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>(_ =
     new SqliteConnectionFactory(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddSingleton<DatabaseInitializer>();
 builder.Services.AddSingleton<IBookService, BookService>();
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>();
 
 var app = builder.Build();
 
@@ -61,15 +63,15 @@ app.MapPost("books",
 {
     var validationResult = await validator.ValidateAsync(book);
     if (!validationResult.IsValid)
-        return Results.BadRequest(validationResult.Errors);
+        return Results.BadRequest(validationResult.Errors.ToErrorList());
 
     var created = await bookService.CreateAsync(book);
 
     if (!created)
         return Results.BadRequest(
-            new List<ValidationFailure>
+            new List<ValidationError>
             { 
-                new("Isbn", "A book with this ISBN already exists.") 
+                new() { PropertyName = "Isbn", ErrorMessage = "A book with this ISBN already exists." } 
             });
 
     return Results.CreatedAtRoute("GetBook", new { isbn = book.Isbn }, book);
