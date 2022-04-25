@@ -1,7 +1,6 @@
 using MinimalLibrary.Api.Data;
 using MinimalLibrary.Api.Models;
 using MinimalLibrary.Api.Services;
-using MinimalLibrary.Api.Validators;
 using FluentValidation;
 using FluentValidation.Results;
 
@@ -44,7 +43,7 @@ app.MapPost("books", async (Book book, IBookService bookService, IValidator<Book
         return Results.BadRequest(
             new List<ValidationFailure>
             { 
-                new ValidationFailure("Isbn", "A book with this ISBN already exists.") 
+                new("Isbn", "A book with this ISBN already exists.") 
             });
 
     return Results.Created($"/books/{book.Isbn}", book);
