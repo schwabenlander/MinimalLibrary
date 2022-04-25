@@ -9,15 +9,20 @@ using MinimalLibrary.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.Local.json", true, true);
+
+// Add and configure services.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AnyOrigin", policy => policy.AllowAnyOrigin());
+});
+
 builder.Services.Configure<JsonOptions>(options =>
 {
     options.SerializerOptions.PropertyNameCaseInsensitive = true;
     options.SerializerOptions.IncludeFields = true;
 });
 
-builder.Configuration.AddJsonFile("appsettings.Local.json", true, true);
-
-// Add services to the container.
 builder.Services.AddAuthentication(ApiKeySchemeConstants.SchemeName)
     .AddScheme<ApiKeyAuthSchemeOptions, ApiKeyAuthHandler>(ApiKeySchemeConstants.SchemeName, _ => { });
 builder.Services.AddAuthorization();
@@ -33,6 +38,8 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseCors();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -87,7 +94,8 @@ app.MapGet("books", async (IBookService bookService, string? searchTerm) =>
 })
 .WithName("GetBooks")
 .Produces<IEnumerable<Book>>()
-.WithTags("Books");
+.WithTags("Books")
+.RequireCors("AnyOrigin");
 
 // Get a book by ISBN
 app.MapGet("books/{isbn}", async (string isbn, IBookService bookService) => 
@@ -99,7 +107,8 @@ app.MapGet("books/{isbn}", async (string isbn, IBookService bookService) =>
 .WithName("GetBook")
 .Produces<Book>()
 .Produces(404)
-.WithTags("Books");
+.WithTags("Books")
+.RequireCors("AnyOrigin");
 
 // Update a book
 app.MapPut("books/{isbn}", async (string isbn, Book book, IBookService bookService, IValidator<Book> validator) =>
