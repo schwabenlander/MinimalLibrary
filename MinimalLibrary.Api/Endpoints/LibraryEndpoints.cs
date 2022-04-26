@@ -8,6 +8,10 @@ namespace MinimalLibrary.Api.Endpoints
 {
     public static partial class LibraryEndpoints
     {
+        private const string ContentType = "application/json";
+        private const string Tag = "Books";
+        private const string BaseRoute = "books";
+
         public static void AddLibraryEndpoints(this IServiceCollection services)
         {
             services.AddSingleton<IBookService, BookService>();
@@ -16,43 +20,42 @@ namespace MinimalLibrary.Api.Endpoints
         public static void UseLibraryEndpoints(this IEndpointRouteBuilder app)
         {
             // Add a book
-            app.MapPost("books", AddBookAsync)
+            app.MapPost(BaseRoute, AddBookAsync)
                 .WithName("CreateBook")
-                .Accepts<Book>("application/json")
+                .Accepts<Book>(ContentType)
                 .Produces<Book>(201)
                 .Produces<IEnumerable<ValidationFailure>>(400)
-                .WithTags("Books");
+                .WithTags(Tag);
 
             // Get books
-            app.MapGet("books", GetBooksAsync)
+            app.MapGet(BaseRoute, GetBooksAsync)
                 .WithName("GetBooks")
                 .Produces<IEnumerable<Book>>()
-                .WithTags("Books")
+                .WithTags(Tag)
                 .RequireCors("AnyOrigin");
 
             // Get a book by ISBN
-            app.MapGet("books/{isbn}", GetBookByIsbnAsync)
+            app.MapGet($"{BaseRoute}/{{isbn}}", GetBookByIsbnAsync)
                 .WithName("GetBook")
                 .Produces<Book>()
                 .Produces(404)
-                .WithTags("Books")
+                .WithTags(Tag)
                 .RequireCors("AnyOrigin");
 
             // Update a book
-            app.MapPut("books/{isbn}",
-                    UpdateBookAsync)
+            app.MapPut($"{BaseRoute}/{{isbn}}", UpdateBookAsync)
                 .WithName("UpdateBook")
-                .Accepts<Book>("application/json")
+                .Accepts<Book>(ContentType)
                 .Produces<Book>()
                 .Produces<IEnumerable<ValidationFailure>>(400)
-                .WithTags("Books");
+                .WithTags(Tag);
 
             // Delete a book
-            app.MapDelete("books/{isbn}", DeleteBookAsync)
+            app.MapDelete($"{BaseRoute}/{{isbn}}", DeleteBookAsync)
                 .WithName("DeleteBook")
                 .Produces(204)
                 .Produces(404)
-                .WithTags("Books");
+                .WithTags(Tag);
         }
     }
 }
