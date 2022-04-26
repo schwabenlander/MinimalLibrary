@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -35,6 +37,25 @@ public class LibraryEndpointsTests : IClassFixture<WebApplicationFactory<IApiMar
         result.Headers.Location.Should().Be($"{httpClient.BaseAddress}books/{book.Isbn}");
     }
 
+    [Fact]
+    public async Task CreateBook_Fails_WhenIsbnIsInvalid()
+    {
+        // Arrange
+        var httpClient = _factory.CreateClient();
+        var book = GenerateBook();
+        book.Isbn = "INVALID_ISBN";
+        
+        // Act
+        var result = await httpClient.PostAsJsonAsync("/books", book);
+        var errors = await result.Content.ReadFromJsonAsync<IEnumerable<ValidationError>>();
+        var error = errors!.Single();
+        
+        // Assert
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        error.PropertyName.Should().Be("Isbn");
+        error.ErrorMessage.Should().Be("Value was not a valid ISBN-13");
+    }
+    
     private Book GenerateBook(string title = "The Dirty Coder")
     {
         return new Book
