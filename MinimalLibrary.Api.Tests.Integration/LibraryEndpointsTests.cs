@@ -111,6 +111,62 @@ public class LibraryEndpointsTests
         // Assert
         result.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task GetBooks_ReturnsAllBooks_WhenBooksExist()
+    {
+        // Arrange
+        var httpClient = _factory.CreateClient();
+        var book1 = GenerateBook();
+        var book2 = GenerateBook();
+        await httpClient.PostAsJsonAsync("/books", book1);
+        await httpClient.PostAsJsonAsync("/books", book2);
+        _createdIsbns.Add(book1.Isbn);
+        _createdIsbns.Add(book2.Isbn);
+        var books = new List<Book>{ book1, book2 };
+        
+        // Act
+        var result = await httpClient.GetAsync("/books");
+        var existingBooks = await result.Content.ReadFromJsonAsync<List<Book>>();
+        
+        // Assert
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        existingBooks.Should().BeEquivalentTo(books);
+    }
+    
+    [Fact]
+    public async Task GetBooks_ReturnsNoBooks_WhenNoBooksExist()
+    {
+        // Arrange
+        var httpClient = _factory.CreateClient();
+
+        // Act
+        var result = await httpClient.GetAsync("/books");
+        var existingBooks = await result.Content.ReadFromJsonAsync<List<Book>>();
+        
+        // Assert
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        existingBooks.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SearchBooks_ReturnsBooks_WhenTitleMatches()
+    {
+        // Arrange
+        var httpClient = _factory.CreateClient();
+        var book = GenerateBook();
+        await httpClient.PostAsJsonAsync("/books", book);
+        _createdIsbns.Add(book.Isbn);
+        var books = new List<Book>{ book };
+        
+        // Act
+        var result = await httpClient.GetAsync("/books?searchTerm=dirty");
+        var existingBooks = await result.Content.ReadFromJsonAsync<List<Book>>();
+        
+        // Assert
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        existingBooks.Should().BeEquivalentTo(books);
+    }
     
     private Book GenerateBook(string title = "The Dirty Coder")
     {
