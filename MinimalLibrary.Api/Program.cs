@@ -1,11 +1,7 @@
 using MinimalLibrary.Api.Data;
-using MinimalLibrary.Api.Models;
-using MinimalLibrary.Api.Services;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.Json;
 using MinimalLibrary.Api.Auth;
-using MinimalLibrary.Api.Extensions;
 using MinimalLibrary.Api.Validators;
 using System.Text.Json;
 using MinimalLibrary.Api.Endpoints;
@@ -51,11 +47,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-
-// Map redirect to Swagger
-if (app.Environment.IsDevelopment())
-    app.MapGet("/", () => Results.Redirect("swagger"))
-        .ExcludeFromDescription();
 
 // Use Library endpoints
 app.UseLibraryEndpoints();

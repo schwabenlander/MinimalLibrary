@@ -17,8 +17,13 @@ namespace MinimalLibrary.Api.Endpoints
             services.AddSingleton<IBookService, BookService>();
         }
 
-        public static void UseLibraryEndpoints(this IEndpointRouteBuilder app)
+        public static void UseLibraryEndpoints(this WebApplication app)
         {
+            // Map redirect to Swagger
+            if (app.Environment.IsDevelopment())
+                app.MapGet("/", () => Results.Redirect("swagger"))
+                    .ExcludeFromDescription();
+            
             // Add a book
             app.MapPost(BaseRoute, AddBookAsync)
                 .WithName("CreateBook")
