@@ -20,7 +20,7 @@ public static partial class LibraryEndpoints
             {
                 new()
                 {
-                    PropertyName = "Isbn", ErrorMessage = "A book with this ISBN already exists."
+                    PropertyName = "Isbn", ErrorMessage = "A book with this ISBN already exists"
                 }
             });
 

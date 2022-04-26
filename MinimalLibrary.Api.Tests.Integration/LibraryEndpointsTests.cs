@@ -11,9 +11,12 @@ using Xunit;
 
 namespace MinimalLibrary.Api.Tests.Integration;
 
-public class LibraryEndpointsTests : IClassFixture<WebApplicationFactory<IApiMarker>>
+public class LibraryEndpointsTests 
+    : IClassFixture<WebApplicationFactory<IApiMarker>>,
+        IAsyncLifetime
 {
     private readonly WebApplicationFactory<IApiMarker> _factory;
+    private readonly List<string> _createdIsbns = new();
 
     public LibraryEndpointsTests(WebApplicationFactory<IApiMarker> factory)
     {
@@ -29,6 +32,7 @@ public class LibraryEndpointsTests : IClassFixture<WebApplicationFactory<IApiMar
 
         // Act
         var result = await httpClient.PostAsJsonAsync("/books", book);
+        _createdIsbns.Add(book.Isbn);
         var createdBook = await result.Content.ReadFromJsonAsync<Book>();
 
         // Assert
@@ -56,6 +60,26 @@ public class LibraryEndpointsTests : IClassFixture<WebApplicationFactory<IApiMar
         error.ErrorMessage.Should().Be("Value was not a valid ISBN-13");
     }
     
+    [Fact]
+    public async Task CreateBook_Fails_WhenBookAlreadyExists()
+    {
+        // Arrange
+        var httpClient = _factory.CreateClient();
+        var book = GenerateBook();
+
+        // Act
+        await httpClient.PostAsJsonAsync("/books", book);
+        _createdIsbns.Add(book.Isbn);
+        var result = await httpClient.PostAsJsonAsync("/books", book); // Duplicate
+        var errors = await result.Content.ReadFromJsonAsync<IEnumerable<ValidationError>>();
+        var error = errors!.Single();
+        
+        // Assert
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        error.PropertyName.Should().Be("Isbn");
+        error.ErrorMessage.Should().Be("A book with this ISBN already exists");
+    }
+    
     private Book GenerateBook(string title = "The Dirty Coder")
     {
         return new Book
@@ -73,5 +97,16 @@ public class LibraryEndpointsTests : IClassFixture<WebApplicationFactory<IApiMar
     {
         return $"{Random.Shared.Next(100, 999)}-" +
                $"{Random.Shared.Next(1000000000, 2100999999)}";
+    }
+
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public async Task DisposeAsync()
+    {
+        var httpClient = _factory.CreateClient();
+        foreach (var createdIsbn in _createdIsbns)
+        {
+            await httpClient.DeleteAsync($"/books/{createdIsbn}");
+        }
     }
 }
