@@ -13,7 +13,7 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", true, true);
 // Add and configure services.
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AnyOrigin", policy => policy.AllowAnyOrigin());
+    options.AddDefaultPolicy(policy => policy.AllowAnyOrigin());
 });
 
 builder.Services.Configure<JsonOptions>(options =>

@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-using FluentValidation.Results;
-using MinimalLibrary.Api.Extensions;
+﻿using FluentValidation.Results;
 using MinimalLibrary.Api.Models;
 using MinimalLibrary.Api.Services;
 
@@ -36,8 +34,7 @@ namespace MinimalLibrary.Api.Endpoints
             app.MapGet(BaseRoute, GetBooksAsync)
                 .WithName("GetBooks")
                 .Produces<IEnumerable<Book>>()
-                .WithTags(Tag)
-                .RequireCors("AnyOrigin");
+                .WithTags(Tag);
 
             // Get a book by ISBN
             app.MapGet($"{BaseRoute}/{{isbn}}", GetBookByIsbnAsync)
