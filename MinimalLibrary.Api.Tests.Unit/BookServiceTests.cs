@@ -24,7 +24,7 @@ public class BookServiceTests
     public async Task GetAllAsync_ShouldReturnEmptyList_WhenNoBooksExist()
     {
         // Arrange
-        _sut.GetAllAsync().Returns(Enumerable.Empty<Book>());
+        _bookRepository.GetAllAsync().Returns(Enumerable.Empty<Book>());
 
         // Act
         var result = await _sut.GetAllAsync();
