@@ -5,6 +5,8 @@ using MinimalLibrary.Api.Auth;
 using MinimalLibrary.Api.Validators;
 using System.Text.Json;
 using MinimalLibrary.Api.Endpoints;
+using MinimalLibrary.Api.Repositories;
+using MinimalLibrary.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>(_ => 
     new SqliteConnectionFactory(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddSingleton<DatabaseInitializer>();
+builder.Services.AddSingleton<IBookRepository, BookRepository>();
 builder.Services.AddLibraryEndpoints();
 builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>();
 

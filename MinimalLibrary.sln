@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalLibrary.Api", "Minim
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalLibrary.Api.Tests.Integration", "MinimalLibrary.Api.Tests.Integration\MinimalLibrary.Api.Tests.Integration.csproj", "{2997EA09-075B-4F07-BDB8-269BAF5C00D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalLibrary.Api.Tests.Unit", "MinimalLibrary.Api.Tests.Unit\MinimalLibrary.Api.Tests.Unit.csproj", "{5142E6B9-B898-450F-9BD1-B75917976EE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2997EA09-075B-4F07-BDB8-269BAF5C00D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2997EA09-075B-4F07-BDB8-269BAF5C00D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2997EA09-075B-4F07-BDB8-269BAF5C00D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5142E6B9-B898-450F-9BD1-B75917976EE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5142E6B9-B898-450F-9BD1-B75917976EE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5142E6B9-B898-450F-9BD1-B75917976EE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5142E6B9-B898-450F-9BD1-B75917976EE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

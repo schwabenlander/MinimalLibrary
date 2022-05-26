@@ -1,105 +1,47 @@
 ﻿using Dapper;
 using MinimalLibrary.Api.Data;
 using MinimalLibrary.Api.Models;
+using MinimalLibrary.Api.Repositories;
 
 namespace MinimalLibrary.Api.Services
 {
     public class BookService : IBookService
     {
-        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IBookRepository _bookRepository;
 
-        public BookService(IDbConnectionFactory connectionFactory)
+        public BookService(IBookRepository bookRepository)
         {
-            _connectionFactory = connectionFactory;
+            _bookRepository = bookRepository;
         }
 
         public async Task<bool> CreateAsync(Book book)
         {
-            var existingBook = await GetByIsbnAsync(book.Isbn);
-            if (existingBook is not null)
-                return false;
-
-            using var connection = await _connectionFactory.CreateConnectionAsync();
-            var result = await connection.ExecuteAsync(
-                @"
-                INSERT INTO Books (Isbn, Title, Author, ShortDescription, PageCount, ReleaseDate)
-                VALUES (@Isbn, @Title, @Author, @ShortDescription, @PageCount, @ReleaseDate);
-                ", book);
-
-            return result > 0;
+            return await _bookRepository.CreateAsync(book);
         }
 
         public async Task<bool> DeleteAsync(string isbn)
         {
-            using var connection = await _connectionFactory.CreateConnectionAsync();
-            var result = await connection.ExecuteAsync(
-                @"
-                DELETE FROM Books
-                WHERE Isbn = @Isbn;
-                ", new { Isbn = isbn });
-
-            return result > 0;
+            return await _bookRepository.DeleteAsync(isbn);
         }
 
         public async Task<IEnumerable<Book>> GetAllAsync()
         {
-            using var connection = await _connectionFactory.CreateConnectionAsync();
-            var result = await connection.QueryAsync<Book>(
-                @"
-                SELECT Isbn, Title, Author, ShortDescription, PageCount, ReleaseDate
-                FROM Books
-                ORDER BY Title;
-                ");
-
-            return result;
+            return await _bookRepository.GetAllAsync();
         }
 
         public async Task<Book?> GetByIsbnAsync(string isbn)
         {
-            using var connection = await _connectionFactory.CreateConnectionAsync();
-            var result = await connection.QuerySingleOrDefaultAsync<Book>(
-                @"
-                SELECT Isbn, Title, Author, ShortDescription, PageCount, ReleaseDate
-                FROM Books
-                WHERE Isbn = @Isbn
-                LIMIT 1;
-                ", new { Isbn = isbn });
-
-            return result;
+            return await _bookRepository.GetByIsbnAsync(isbn);
         }
 
         public async Task<IEnumerable<Book>> SearchByTitleAsync(string searchTerm)
         {
-            using var connection = await _connectionFactory.CreateConnectionAsync();
-            var result = await connection.QueryAsync<Book>(
-                @"
-                SELECT Isbn, Title, Author, ShortDescription, PageCount, ReleaseDate
-                FROM Books
-                WHERE Title LIKE '%' || @SearchTerm || '%';
-                ", new { SearchTerm = searchTerm });
-
-            return result;
+            return await _bookRepository.SearchByTitleAsync(searchTerm);
         }
 
         public async Task<bool> UpdateAsync(Book book)
         {
-            var existingBook = await GetByIsbnAsync(book.Isbn);
-            if (existingBook is null)
-                return false;
-
-            using var connection = await _connectionFactory.CreateConnectionAsync();
-            var result = await connection.ExecuteAsync(
-                @"
-                UPDATE Books
-                SET Title = @Title, 
-                    Author = @Author, 
-                    ShortDescription = @ShortDescription, 
-                    PageCount = @PageCount, 
-                    ReleaseDate = @ReleaseDate
-                WHERE Isbn = @Isbn;
-                ", book);
-
-            return result > 0;
+            return await _bookRepository.UpdateAsync(book);
         }
     }
 }
