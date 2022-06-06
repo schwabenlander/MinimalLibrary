@@ -25,7 +25,7 @@ public class TimerMiddleware
         finally
         {
             stopWatch.Stop();
-            _logger.LogInformation($"{context.GetEndpoint()!.DisplayName} request completed in: {stopWatch.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{context.GetEndpoint()?.DisplayName} request completed in: {stopWatch.ElapsedMilliseconds} ms");
         }
     }
 }
