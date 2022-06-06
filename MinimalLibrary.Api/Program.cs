@@ -5,6 +5,7 @@ using MinimalLibrary.Api.Auth;
 using MinimalLibrary.Api.Validators;
 using System.Text.Json;
 using MinimalLibrary.Api.Endpoints;
+using MinimalLibrary.Api.Middleware;
 using MinimalLibrary.Api.Repositories;
 using MinimalLibrary.Api.Services;
 
@@ -50,6 +51,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+
+// Add middleware
+app.UseMiddleware<TimerMiddleware>();
 
 // Use Library endpoints
 app.UseLibraryEndpoints();
